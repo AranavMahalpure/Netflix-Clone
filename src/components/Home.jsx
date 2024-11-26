@@ -14,7 +14,6 @@ function Home() {
       const response = await axios.get(
         `https://api.themoviedb.org/3/trending/movie/week?api_key=${API_KEY}`
       );
-      console.log(response)
       setMovies(response.data.results);
     };
     fetchMovies();
@@ -22,7 +21,6 @@ function Home() {
 
   return (
     <div className="movies-container">
-      <Button>Click Me</Button>
       {movies.map((movie) => (
         <div key={movie.id} className="movie">
           <img
