@@ -1,19 +1,35 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 
-const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/original';
+const HIGH_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/original';
+const LOW_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w200';
 
 export function MovieModal({ movie, isOpen, onClose }) {
+  const [highQualityLoaded, setHighQualityLoaded] = useState(false);
+
+  useEffect(() => {
+    if (movie) {
+      const img = new Image();
+      img.src = `${HIGH_IMAGE_BASE_URL}${movie.backdrop_path || movie.poster_path}`;
+      img.onload = () => setHighQualityLoaded(true);
+    }
+    return () => setHighQualityLoaded(false);
+  }, [movie]);
+
   if (!movie) return null;
+
+  const backgroundImage = highQualityLoaded
+    ? `url(${HIGH_IMAGE_BASE_URL}${movie.backdrop_path || movie.poster_path})`
+    : `url(${LOW_IMAGE_BASE_URL}${movie.backdrop_path || movie.poster_path})`;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-5xl p-0 overflow-hidden">
         <div 
-          className="relative min-h-[80vh] bg-cover bg-center"
-          style={{ backgroundImage: `url(${IMAGE_BASE_URL}${movie.backdrop_path || movie.poster_path})` }}
+          className="relative min-h-[80vh] bg-cover bg-center transition-all duration-300 ease-in-out"
+          style={{ backgroundImage }}
         >
           <div className="absolute inset-0 bg-black bg-opacity-40">
             <DialogHeader className="p-4">
