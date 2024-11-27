@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
-const VideoPlayer = ({ src, movieName = "Movie Title" }) => {
+const VideoPlayer = ({ src, movieName = "Movie Title", onBack }) => {
   const videoRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -127,6 +127,10 @@ const VideoPlayer = ({ src, movieName = "Movie Title" }) => {
     videoRef.current.currentTime += amount;
   };
 
+  const handleBackClick = () => {
+    if (onBack) onBack();
+  };
+
   return (
     (<div
       className="relative w-full max-w-4xl mx-auto bg-black"
@@ -142,7 +146,7 @@ const VideoPlayer = ({ src, movieName = "Movie Title" }) => {
                 variant="ghost"
                 size="icon"
                 className="text-white"
-                onClick={() => console.log('Back button clicked')}>
+                onClick={handleBackClick}>
                 <ChevronLeft className="h-6 w-6" />
               </Button>
               <h2 className="text-white text-xl font-bold ml-4 flex-grow text-center">{movieName}</h2>
@@ -207,4 +211,3 @@ const VideoPlayer = ({ src, movieName = "Movie Title" }) => {
 };
 
 export default VideoPlayer;
-
