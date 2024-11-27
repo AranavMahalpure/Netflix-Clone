@@ -2,11 +2,9 @@
 import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
-import { Button } from './ui/Button';
 
 function Home() {
   const [movies, setMovies] = useState([]);
-  const { currentUser } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchMovies = async () => {

@@ -82,7 +82,7 @@ export default function Home() {
       <header className="px-4 py-4 flex items-center justify-between">
         <a href="/" className="flex items-center">
           <img
-            src="/placeholder.svg"
+            src="/logo.png"
             alt="Netflix"
             width={120}
             height={34}
@@ -121,7 +121,7 @@ export default function Home() {
         <section className="relative min-h-[600px] flex items-center justify-center text-center px-4">
           <div className="absolute inset-0">
             <img
-              src="/placeholder.svg?height=600&width=1200"
+              src="/login_background.png"
               alt="Background"
               className="object-cover brightness-50 w-full h-full"
             />
