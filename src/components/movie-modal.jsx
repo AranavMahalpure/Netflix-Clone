@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { addToCollection } from '../firebase';
+import { addToCollection, removeFromCollection } from '../firebase';
 import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import { AuthContext } from '@/context/AuthContext';
 import { db } from '../firebase';
@@ -52,17 +52,26 @@ export function MovieModal({ movie, isOpen, onClose }) {
     ? `url(${HIGH_IMAGE_BASE_URL}${movie.backdrop_path || movie.poster_path})`
     : `url(${LOW_IMAGE_BASE_URL}${movie.backdrop_path || movie.poster_path})`;
 
-  const handleAddToCollection = async (e) => {
-    e.stopPropagation(); // Prevent triggering the onClick of the card
+  const handleToggleCollection = async (e) => {
+    e.stopPropagation();
     if (!currentUser) {
-      alert('Please log in to add movies to your collection.');
+      alert('Please log in to manage your collection.');
       return;
     }
 
     try {
-      await addToCollection(currentUser.uid, movie.id);
-      setIsInCollection(true);
+      if (isInCollection) {
+        await removeFromCollection(currentUser.uid, movie.id);
+        setIsInCollection(false);
+        alert(`${movie.title} has been removed from your collection.`);
+      } else {
+        await addToCollection(currentUser.uid, movie.id);
+        setIsInCollection(true);
+        alert(`${movie.title} has been added to your collection!`);
+      }
     } catch (error) {
+      console.error('Error updating collection:', error);
+      alert('Failed to update your collection. Please try again.');
     }
   };
 
@@ -94,11 +103,10 @@ export function MovieModal({ movie, isOpen, onClose }) {
                   </div>
                   <div className="flex items-center gap-4">
                     <Button
-                      onClick={handleAddToCollection}
+                      onClick={handleToggleCollection}
                       className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded"
-                      disabled={isInCollection}
                     >
-                      {isInCollection ? 'Added to Collection' : 'Add to Collection'}
+                      {isInCollection ? 'Remove from Collection' : 'Add to Collection'}
                     </Button>
                     <Button
                       className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded"

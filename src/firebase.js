@@ -1,7 +1,7 @@
 // src/firebase.js
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore, doc, setDoc, arrayUnion } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBecO2BIY20MfD-z2GkZiiSmVMsqHap-NE",
@@ -35,6 +35,21 @@ export const addToCollection = async (userId, movieId) => {
     console.log(`Successfully added movie ID ${movieId} to user ${userId}'s collection.`);
   } catch (error) {
     console.error('Error adding movie to collection:', error);
+    throw error;
+  }
+};
+
+export const removeFromCollection = async (userId, movieId) => {
+  try {
+    const userDocRef = doc(db, 'users', userId);
+    await setDoc(
+      userDocRef,
+      { collections: arrayRemove(movieId) },
+      { merge: true }
+    );
+    console.log(`Successfully removed movie ID ${movieId} from user ${userId}'s collection.`);
+  } catch (error) {
+    console.error('Error removing movie from collection:', error);
     throw error;
   }
 };
