@@ -36,19 +36,40 @@ const VideoPlayer = ({ src, movieName = "Movie Title", onBack }) => {
     const video = videoRef.current;
     video.addEventListener('timeupdate', handleTimeUpdate);
     video.addEventListener('loadedmetadata', handleLoadedMetadata);
+    video.addEventListener('play', () => setIsPlaying(true));
+    video.addEventListener('pause', () => setIsPlaying(false));
+
+    // Autoplay
+    video.play().catch(error => {
+      console.log('Autoplay was prevented:', error);
+    });
+
     return () => {
       video.removeEventListener('timeupdate', handleTimeUpdate);
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      video.removeEventListener('play', () => setIsPlaying(true));
+      video.removeEventListener('pause', () => setIsPlaying(false));
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
     };
   }, []);
 
   useEffect(() => {
     let timeout;
-    if (showControls) {
+    if (showControls && !isFullscreen) {
       timeout = setTimeout(() => setShowControls(false), 3000);
     }
     return () => clearTimeout(timeout);
-  }, [showControls]);
+  }, [showControls, isFullscreen]);
 
   const handleLoadedMetadata = () => {
     setDuration(videoRef.current.duration);
@@ -65,7 +86,6 @@ const VideoPlayer = ({ src, movieName = "Movie Title", onBack }) => {
     } else {
       videoRef.current.play();
     }
-    setIsPlaying(!isPlaying);
   };
 
   const handleSeek = (newValue) => {
@@ -109,7 +129,6 @@ const VideoPlayer = ({ src, movieName = "Movie Title", onBack }) => {
         document.msExitFullscreen();
       }
     }
-    setIsFullscreen(!isFullscreen);
   };
 
   const handleSpeedChange = (speed) => {
@@ -132,34 +151,41 @@ const VideoPlayer = ({ src, movieName = "Movie Title", onBack }) => {
   };
 
   return (
-    (<div
+    <div
       className="relative w-full max-w-4xl mx-auto bg-black"
       onMouseEnter={() => setShowControls(true)}
-      onMouseLeave={() => setShowControls(false)}>
-      <video ref={videoRef} src={src} className="w-full" onClick={togglePlay} />
-      {showControls && (
+      onMouseLeave={() => !isFullscreen && setShowControls(false)}
+    >
+      <video 
+        ref={videoRef} 
+        src={src} 
+        className="w-full" 
+        onClick={togglePlay}
+        autoPlay
+      />
+      {(showControls || isFullscreen) && (
         <>
-          <div
-            className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black to-transparent">
+          <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black to-transparent">
             <div className="flex items-center">
               <Button
                 variant="ghost"
                 size="icon"
                 className="text-white"
-                onClick={handleBackClick}>
+                onClick={handleBackClick}
+              >
                 <ChevronLeft className="h-6 w-6" />
               </Button>
               <h2 className="text-white text-xl font-bold ml-4 flex-grow text-center">{movieName}</h2>
             </div>
           </div>
-          <div
-            className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
             <Slider
               value={[progress]}
               max={100}
               step={0.1}
               onValueChange={handleSeek}
-              className="w-full" />
+              className="w-full"
+            />
             <div className="flex items-center justify-between mt-2">
               <div className="flex items-center space-x-2">
                 <Button size="icon" onClick={togglePlay}>
@@ -179,7 +205,8 @@ const VideoPlayer = ({ src, movieName = "Movie Title", onBack }) => {
                   max={100}
                   step={1}
                   onValueChange={handleVolumeChange}
-                  className="w-24" />
+                  className="w-24"
+                />
                 <span className="text-white text-sm">
                   {formatTime(currentTime)} / {formatTime(duration)}
                 </span>
@@ -187,7 +214,8 @@ const VideoPlayer = ({ src, movieName = "Movie Title", onBack }) => {
               <div className="flex items-center space-x-2">
                 <Select
                   value={playbackRate.toString()}
-                  onValueChange={(value) => handleSpeedChange(parseFloat(value))}>
+                  onValueChange={(value) => handleSpeedChange(parseFloat(value))}
+                >
                   <SelectTrigger className="w-[80px] bg-transparent text-white border-white">
                     <SelectValue placeholder="Speed" />
                   </SelectTrigger>
@@ -206,8 +234,9 @@ const VideoPlayer = ({ src, movieName = "Movie Title", onBack }) => {
           </div>
         </>
       )}
-    </div>)
+    </div>
   );
 };
 
 export default VideoPlayer;
+
