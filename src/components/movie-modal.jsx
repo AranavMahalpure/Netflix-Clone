@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import { AuthContext } from '@/context/AuthContext';
 import { db } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
+import { useToast } from "@/hooks/use-toast";
 
 const HIGH_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/original';
 const LOW_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w200';
@@ -14,6 +15,7 @@ export function MovieModal({ movie, isOpen, onClose }) {
   const { currentUser } = useContext(AuthContext);
   const [isInCollection, setIsInCollection] = useState(false);
   const [highQualityLoaded, setHighQualityLoaded] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (movie && currentUser) {
@@ -28,14 +30,18 @@ export function MovieModal({ movie, isOpen, onClose }) {
             setIsInCollection(collections.includes(movie.id));
           }
         } catch (error) {
-          console.error('Error checking collection:', error);
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to check collection status",
+          });
         }
       };
       checkIfInCollection();
     } else {
       setIsInCollection(false);
     }
-  }, [movie, currentUser]);
+  }, [movie, currentUser, toast]);
 
   useEffect(() => {
     if (movie) {
@@ -55,7 +61,11 @@ export function MovieModal({ movie, isOpen, onClose }) {
   const handleToggleCollection = async (e) => {
     e.stopPropagation();
     if (!currentUser) {
-      alert('Please log in to manage your collection.');
+      toast({
+        variant: "destructive",
+        title: "Authentication Required",
+        description: "Please log in to manage your collection",
+      });
       return;
     }
 
@@ -63,15 +73,26 @@ export function MovieModal({ movie, isOpen, onClose }) {
       if (isInCollection) {
         await removeFromCollection(currentUser.uid, movie.id);
         setIsInCollection(false);
-        alert(`${movie.title} has been removed from your collection.`);
+        toast({
+          title: "Success",
+          description: `${movie.title} has been removed from your collection`,
+          className: "bg-red-600 text-white border-0",
+        });
       } else {
         await addToCollection(currentUser.uid, movie.id);
         setIsInCollection(true);
-        alert(`${movie.title} has been added to your collection!`);
+        toast({
+          title: "Success",
+          description: `${movie.title} has been added to your collection`,
+          className: "bg-red-600 text-white border-0",
+        });
       }
     } catch (error) {
-      console.error('Error updating collection:', error);
-      alert('Failed to update your collection. Please try again.');
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update your collection. Please try again.",
+      });
     }
   };
 

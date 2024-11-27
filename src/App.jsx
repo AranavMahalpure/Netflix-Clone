@@ -7,22 +7,26 @@ import PrivateRoute from '@/components/PrivateRoute';
 import { MovieModal } from '@/components/movie-modal';
 import Home from '@/app/Home';
 import Collections from '@/app/Collections';
+import { Toaster } from "@/components/ui/toaster";
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
-      <Route
-        path="/collections"
-        element={
-          <PrivateRoute>
-            <Collections />
-          </PrivateRoute>
-        }
-      />
-    </Routes>
+    <>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route
+          path="/collections"
+          element={
+            <PrivateRoute>
+              <Collections />
+            </PrivateRoute>
+          }
+        />
+      </Routes>
+      <Toaster />
+    </>
   );
 }
 
