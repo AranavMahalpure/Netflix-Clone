@@ -4,14 +4,38 @@ import { Button } from "@/components/ui/button";
 import { addToCollection } from '../firebase';
 import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import { AuthContext } from '@/context/AuthContext';
+import { db } from '../firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 const HIGH_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/original';
 const LOW_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w200';
 
 export function MovieModal({ movie, isOpen, onClose }) {
   const { currentUser } = useContext(AuthContext);
-
+  const [isInCollection, setIsInCollection] = useState(false);
   const [highQualityLoaded, setHighQualityLoaded] = useState(false);
+
+  useEffect(() => {
+    if (movie && currentUser) {
+      // Check if the movie is already in the user's collection
+      const checkIfInCollection = async () => {
+        try {
+          const userDocRef = doc(db, 'users', currentUser.uid);
+          const userDocSnap = await getDoc(userDocRef);
+          if (userDocSnap.exists()) {
+            const userData = userDocSnap.data();
+            const collections = userData.collections || [];
+            setIsInCollection(collections.includes(movie.id));
+          }
+        } catch (error) {
+          console.error('Error checking collection:', error);
+        }
+      };
+      checkIfInCollection();
+    } else {
+      setIsInCollection(false);
+    }
+  }, [movie, currentUser]);
 
   useEffect(() => {
     if (movie) {
@@ -37,12 +61,10 @@ export function MovieModal({ movie, isOpen, onClose }) {
 
     try {
       await addToCollection(currentUser.uid, movie.id);
-      alert(`${movie.title} has been added to your collection!`);
+      setIsInCollection(true);
     } catch (error) {
-      alert(`Failed to add ${movie.title} to your collection. Please try again.`);
     }
   };
-
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -64,20 +86,26 @@ export function MovieModal({ movie, isOpen, onClose }) {
             </DialogHeader>
             <div className="p-6 text-white h-full flex flex-col justify-between">
               <div>
+                {/* Movie Information */}
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
                     <div className="w-6 h-6 bg-red-600 flex items-center justify-center text-xs font-bold">N</div>
                     <span className="text-sm font-medium">FILM</span>
                   </div>
-                  <Button
-                    onClick={handleAddToCollection}
-                    className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded">
-                    Add to Collection
-                  </Button>
-                  <Button
-                    className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded">
-                    Watch Now
-                  </Button>
+                  <div className="flex items-center gap-4">
+                    <Button
+                      onClick={handleAddToCollection}
+                      className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded"
+                      disabled={isInCollection}
+                    >
+                      {isInCollection ? 'Added to Collection' : 'Add to Collection'}
+                    </Button>
+                    <Button
+                      className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded"
+                    >
+                      Watch Now
+                    </Button>
+                  </div>
                 </div>
                 <div className="bg-black bg-opacity-50 p-4 rounded">
                   <h2 className="text-4xl font-bold mb-4">{movie.title}</h2>
@@ -108,6 +136,7 @@ export function MovieModal({ movie, isOpen, onClose }) {
                   </div>
                 </div>
               </div>
+              {/* Additional content if needed */}
             </div>
           </div>
         </div>
@@ -115,4 +144,3 @@ export function MovieModal({ movie, isOpen, onClose }) {
     </Dialog>
   );
 }
-
