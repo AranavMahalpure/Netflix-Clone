@@ -1,12 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { addToCollection } from '../firebase';
 import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
+import { AuthContext } from '@/context/AuthContext';
 
 const HIGH_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/original';
 const LOW_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w200';
 
 export function MovieModal({ movie, isOpen, onClose }) {
+  const { currentUser } = useContext(AuthContext);
+
   const [highQualityLoaded, setHighQualityLoaded] = useState(false);
 
   useEffect(() => {
@@ -24,10 +28,26 @@ export function MovieModal({ movie, isOpen, onClose }) {
     ? `url(${HIGH_IMAGE_BASE_URL}${movie.backdrop_path || movie.poster_path})`
     : `url(${LOW_IMAGE_BASE_URL}${movie.backdrop_path || movie.poster_path})`;
 
+  const handleAddToCollection = async (e) => {
+    e.stopPropagation(); // Prevent triggering the onClick of the card
+    if (!currentUser) {
+      alert('Please log in to add movies to your collection.');
+      return;
+    }
+
+    try {
+      await addToCollection(currentUser.uid, movie.id);
+      alert(`${movie.title} has been added to your collection!`);
+    } catch (error) {
+      alert(`Failed to add ${movie.title} to your collection. Please try again.`);
+    }
+  };
+
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-5xl p-0 overflow-hidden">
-        <div 
+        <div
           className="relative min-h-[80vh] bg-cover bg-center transition-all duration-300 ease-in-out"
           style={{ backgroundImage }}
         >
@@ -49,7 +69,13 @@ export function MovieModal({ movie, isOpen, onClose }) {
                     <div className="w-6 h-6 bg-red-600 flex items-center justify-center text-xs font-bold">N</div>
                     <span className="text-sm font-medium">FILM</span>
                   </div>
-                  <Button className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded">
+                  <Button
+                    onClick={handleAddToCollection}
+                    className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded">
+                    Add to Collection
+                  </Button>
+                  <Button
+                    className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded">
                     Watch Now
                   </Button>
                 </div>

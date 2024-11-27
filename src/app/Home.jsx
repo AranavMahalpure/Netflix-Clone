@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { ChevronRight, Globe } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +21,29 @@ import axios from 'axios';
 
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const BASE_URL = 'https://api.themoviedb.org/3';
+
+function Navbar() {
+  const { currentUser } = useContext(AuthContext);
+
+  return (
+    <nav className="flex justify-between p-4 bg-gray-800 text-white">
+      <Link to="/">Home</Link>
+      <div>
+        {currentUser ? (
+          <>
+            <Link to="/collections" className="mr-4">My Collection</Link>
+            <Button onClick={() => signOut(auth)}>Logout</Button>
+          </>
+        ) : (
+          <>
+            <Link to="/login" className="mr-4">Login</Link>
+            <Link to="/signup">Sign Up</Link>
+          </>
+        )}
+      </div>
+    </nav>
+  );
+}
 
 export default function Home() {
   const [selectedMovie, setSelectedMovie] = useState(null);

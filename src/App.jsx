@@ -6,20 +6,22 @@ import Login from './components/Login';
 import PrivateRoute from './components/PrivateRoute';
 import { MovieModal } from './components/movie-modal';
 import Home from './app/Home';
+import Collections from './components/Collections';
 
 function App() {
   return (
     <Routes>
-      <Route
-        path="/"
-        element={
-          // <PrivateRoute>
-            <Home />
-          // </PrivateRoute>
-        }
-      />
+      <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route
+        path="/collections"
+        element={
+          <PrivateRoute>
+            <Collections />
+          </PrivateRoute>
+        }
+      />
     </Routes>
   );
 }
