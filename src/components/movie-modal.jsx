@@ -6,7 +6,7 @@ import { addToCollection, removeFromCollection } from '../firebase';
 import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import { AuthContext } from '@/context/AuthContext';
 import { db } from '../firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
 import { useToast } from "@/hooks/use-toast";
 import VideoPlayer from './VideoPlayer';
 
@@ -20,6 +20,9 @@ export function MovieModal({ movie, isOpen, onClose }) {
   const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const [showVideo, setShowVideo] = useState(false);
+  const [videoLinks, setVideoLinks] = useState([]);
+  const [selectedVideoLink, setSelectedVideoLink] = useState('');
+  const [loadingVideo, setLoadingVideo] = useState(true);
 
   const handleClose = () => {
     console.log("closing vid")
@@ -69,6 +72,34 @@ export function MovieModal({ movie, isOpen, onClose }) {
       setShowVideo(false);
     }
   }, [isOpen, searchParams]);
+
+  useEffect(() => {
+    const fetchVideoLinks = async () => {
+      try {
+        const videoLinksCollection = collection(db, 'video_links');
+        const videoLinksSnapshot = await getDocs(videoLinksCollection);
+        const links = videoLinksSnapshot.docs.map(doc => doc.data().link);
+        setVideoLinks(links);
+      } catch (error) {
+        console.error('Error fetching video links:', error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load video links",
+        });
+      }
+    };
+
+    fetchVideoLinks();
+  }, []);
+
+  useEffect(() => {
+    if (movie && videoLinks.length > 0) {
+      const videoIndex = movie.id % videoLinks.length;
+      setSelectedVideoLink(videoLinks[videoIndex]);
+      setLoadingVideo(false);
+    }
+  }, [movie, videoLinks]);
 
   if (!movie) return null;
 
@@ -128,11 +159,17 @@ export function MovieModal({ movie, isOpen, onClose }) {
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-5xl p-0 overflow-hidden">
         {showVideo ? (
-          <VideoPlayer
-            src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" // Replace with actual video URL
-            movieName={movie.title}
-            onBack={handleBackToDetails}
-          />
+          loadingVideo ? (
+            <div className="flex items-center justify-center min-h-[80vh] bg-black">
+              <div className="text-white">Loading video...</div>
+            </div>
+          ) : (
+            <VideoPlayer
+              src={selectedVideoLink}
+              movieName={movie.title}
+              onBack={handleBackToDetails}
+            />
+          )
         ) : (
           <div
             className="relative min-h-[80vh] bg-cover bg-center transition-all duration-300 ease-in-out"
