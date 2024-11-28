@@ -1,7 +1,7 @@
 // src/components/movie-card.jsx
 import React, { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { Button } from './ui/Button';
+import { Button } from './ui/button';
 
 export function MovieCard({ movie, onClick }) {
 
