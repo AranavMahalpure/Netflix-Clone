@@ -7,7 +7,7 @@ import { MovieCard } from "@/components/movie-card";
 import { MovieModal } from "@/components/movie-modal";
 
 import { auth } from "@/firebase"; // Import the auth object
-import { onAuthStateChanged, signOut  } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 
 
 import axios from 'axios';
@@ -19,28 +19,7 @@ import api from '@/lib/axios';
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const BASE_URL = 'https://api.themoviedb.org/3';
 
-function Navbar() {
-  const { currentUser } = useContext(AuthContext);
 
-  return (
-    <nav className="flex justify-between p-4 bg-gray-800 text-white">
-      <Link to="/">Home</Link>
-      <div>
-        {currentUser ? (
-          <>
-            <Link to="/collections" className="mr-4">My Collection</Link>
-            <Button onClick={() => signOut(auth)}>Logout</Button>
-          </>
-        ) : (
-          <>
-            <Link to="/login" className="mr-4">Login</Link>
-            <Link to="/signup">Sign Up</Link>
-          </>
-        )}
-      </div>
-    </nav>
-  );
-}
 
 export default function Home() {
   const { currentUser } = useContext(AuthContext);
@@ -55,11 +34,27 @@ export default function Home() {
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const [trendingRes, topRatedRes, upcomingRes] = await Promise.all([
-          api.get(`/trending/movie/week?api_key=${API_KEY}`),
-          api.get(`/movie/top_rated?api_key=${API_KEY}`),
-          api.get(`/movie/upcoming?api_key=${API_KEY}`),
-        ]);
+        let trendingRes = { data: { results: [] } };
+        let topRatedRes = { data: { results: [] } };
+        let upcomingRes = { data: { results: [] } };
+
+        try {
+          trendingRes = await api.get(`/trending/movie/week?api_key=${API_KEY}`);
+        } catch (error) {
+          console.error('Error fetching trending movies:', error);
+        }
+
+        try {
+          topRatedRes = await api.get(`/movie/top_rated?api_key=${API_KEY}`);
+        } catch (error) {
+          console.error('Error fetching top rated movies:', error);
+        }
+
+        try {
+          upcomingRes = await api.get(`/movie/upcoming?api_key=${API_KEY}`);
+        } catch (error) {
+          console.error('Error fetching upcoming movies:', error);
+        }
 
         setCategories({
           trending: trendingRes.data.results,
@@ -101,9 +96,14 @@ export default function Home() {
                 placeholder="Email address"
                 className="bg-black/60 border-gray-600"
               />
-              <Button className="bg-red-600 hover:bg-red-700 text-white">
-                Get Started
-              </Button>
+              <Link
+                to="/signup"
+                className="text-white hover:text-gray-300 transition"
+              >
+                <Button className="bg-red-600 hover:bg-red-700 text-white">
+                  Get Started
+                </Button>
+              </Link>
             </div>
           </div>
         </section>
