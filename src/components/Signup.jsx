@@ -6,11 +6,13 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from "@/hooks/use-toast"
 
 function Signup() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const { toast } = useToast();
 
   const navigate = useNavigate();
 
@@ -22,8 +24,31 @@ function Signup() {
       await updateProfile(user, { displayName: name });
       navigate('/');
     } catch (error) {
-      console.error('Error signing up:', error);
-      // Handle errors here
+      let errorMessage = 'An error occurred during signup';
+      
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          errorMessage = 'This email is already registered';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'Invalid email address';
+          break;
+        case 'auth/operation-not-allowed':
+          errorMessage = 'Email/password accounts are not enabled';
+          break;
+        case 'auth/weak-password':
+          errorMessage = 'Password should be at least 6 characters';
+          break;
+        default:
+          console.error('Signup error:', error);
+      }
+
+      toast({
+        variant: "destructive",
+        title: "Signup Failed",
+        description: errorMessage,
+        className: "bg-red-600 text-white border-0",
+      });
     }
   };
 

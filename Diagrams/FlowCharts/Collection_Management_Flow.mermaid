@@ -1,0 +1,14 @@
+flowchart TD
+    Collections[Collections Page] --> CheckAuth{User Authenticated?}
+    CheckAuth -->|No| Redirect[Redirect to Login]
+    CheckAuth -->|Yes| FetchCollection[Fetch User Collection]
+    
+    FetchCollection --> DisplayCollection[Display Collection]
+    DisplayCollection --> MovieActions{Select Action}
+    
+    MovieActions -->|View Details| ShowModal[Show Movie Modal]
+    MovieActions -->|Remove| RemoveMovie[Remove from Collection]
+    MovieActions -->|Play| PlayVideo[Play Video]
+    
+    RemoveMovie --> UpdateFirestore[Update Firestore]
+    UpdateFirestore --> DisplayCollection

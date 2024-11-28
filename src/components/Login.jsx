@@ -6,11 +6,12 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from "@/hooks/use-toast";
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
+  const { toast } = useToast();
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -19,8 +20,34 @@ function Login() {
       await signInWithEmailAndPassword(auth, email, password);
       navigate('/');
     } catch (error) {
-      console.error('Error logging in:', error);
-      // Handle errors here
+      let errorMessage = 'Failed to sign in';
+      
+      switch (error.code) {
+        case 'auth/invalid-email':
+          errorMessage = 'Invalid email address';
+          break;
+        case 'auth/user-disabled':
+          errorMessage = 'This account has been disabled';
+          break;
+        case 'auth/user-not-found':
+          errorMessage = 'No account found with this email';
+          break;
+        case 'auth/wrong-password':
+          errorMessage = 'Incorrect password';
+          break;
+        case 'auth/too-many-requests':
+          errorMessage = 'Too many failed attempts. Try again later';
+          break;
+        default:
+          console.error('Login error:', error);
+      }
+
+      toast({
+        variant: "destructive",
+        title: "Login Failed",
+        description: errorMessage,
+        className: "bg-red-600 text-white border-0",
+      });
     }
   };
 

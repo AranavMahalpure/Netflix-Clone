@@ -1,0 +1,21 @@
+flowchart TD
+    Home[Home Page] --> FetchMovies[Fetch Movies from TMDB]
+    FetchMovies --> Categories{Select Category}
+    Categories --> Trending[Trending]
+    Categories --> Popular[Popular]
+    Categories --> TopRated[Top Rated]
+    Categories --> Upcoming[Upcoming]
+    
+    Trending --> DisplayMovies[Display Movie Cards]
+    Popular --> DisplayMovies
+    TopRated --> DisplayMovies
+    Upcoming --> DisplayMovies
+    
+    DisplayMovies --> SelectMovie{Select Movie?}
+    SelectMovie -->|Yes| ShowModal[Show Movie Modal]
+    SelectMovie -->|No| DisplayMovies
+    
+    ShowModal --> Actions{User Action}
+    Actions -->|Play| VideoPlayer[Video Player]
+    Actions -->|Add to Collection| SaveToFirestore[Save to Firestore]
+    Actions -->|Close| DisplayMovies
