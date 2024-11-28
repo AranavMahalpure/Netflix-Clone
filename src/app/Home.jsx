@@ -10,16 +10,12 @@ import { MovieModal } from "@/components/movie-modal";
 import { auth } from "@/firebase"; // Import the auth object
 import { onAuthStateChanged, signOut  } from "firebase/auth";
 
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 
 import axios from 'axios';
 import { AuthContext } from "@/context/AuthContext";
 import { Layout } from "@/components/Layout/Layout";
+
+import api from '@/lib/axios';
 
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const BASE_URL = 'https://api.themoviedb.org/3';
@@ -61,9 +57,9 @@ export default function Home() {
     const fetchMovies = async () => {
       try {
         const [trendingRes, topRatedRes, upcomingRes] = await Promise.all([
-          axios.get(`${BASE_URL}/trending/movie/week?api_key=${API_KEY}`),
-          axios.get(`${BASE_URL}/movie/top_rated?api_key=${API_KEY}`),
-          axios.get(`${BASE_URL}/movie/upcoming?api_key=${API_KEY}`),
+          api.get(`/trending/movie/week?api_key=${API_KEY}`),
+          api.get(`/movie/top_rated?api_key=${API_KEY}`),
+          api.get(`/movie/upcoming?api_key=${API_KEY}`),
         ]);
 
         setCategories({

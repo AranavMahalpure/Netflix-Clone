@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/Layout/Layout";
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import api from '@/lib/axios';
 
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const BASE_URL = 'https://api.themoviedb.org/3';
@@ -40,7 +41,7 @@ export default function Collections() {
       setError(null);
       try {
         const moviePromises = collectionMovieIds.map(id =>
-          axios.get(`${BASE_URL}/movie/${id}?api_key=${API_KEY}`)
+          api.get(`/movie/${id}?api_key=${API_KEY}`)
         );
         const responses = await Promise.all(moviePromises);
         const movieData = responses.map(response => response.data);
