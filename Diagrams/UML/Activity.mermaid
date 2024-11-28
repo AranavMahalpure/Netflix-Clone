@@ -1,0 +1,26 @@
+stateDiagram-v2
+    [*] --> Login
+    
+    state "Authentication" as auth {
+        Login --> ValidateCredentials
+        ValidateCredentials --> Authenticated: Valid
+        ValidateCredentials --> Login: Invalid
+    }
+    
+    state "Movie Browsing" as browse {
+        Authenticated --> BrowseMovies
+        BrowseMovies --> SelectMovie
+        SelectMovie --> WatchMovie
+        SelectMovie --> AddToCollection
+    }
+    
+    state "Video Playback" as play {
+        WatchMovie --> PlayVideo
+        PlayVideo --> Controls
+        Controls --> AdjustVolume
+        Controls --> SeekPosition
+        Controls --> TogglePlayPause
+    }
+
+    AddToCollection --> BrowseMovies
+    Controls --> BrowseMovies: Exit

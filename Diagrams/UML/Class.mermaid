@@ -1,0 +1,37 @@
+classDiagram
+    class AuthContext {
+        -currentUser: User
+        -loading: boolean
+        +setCurrentUser()
+        +signOut()
+    }
+
+    class VideoPlayer {
+        -videoRef: Ref
+        -isPlaying: boolean
+        -progress: number
+        -volume: number
+        +togglePlay()
+        +handleSeek()
+        +handleVolumeChange()
+        +toggleMute()
+    }
+
+    class MovieModal {
+        -movie: Movie
+        -isOpen: boolean
+        -showVideo: boolean
+        +handleToggleCollection()
+        +handleWatchClick()
+        +handleClose()
+    }
+
+    class Collections {
+        -movies: Movie[]
+        -loading: boolean
+        +fetchMovies()
+        +handleMovieClick()
+    }
+
+    VideoPlayer <-- MovieModal
+    MovieModal <-- Collections
