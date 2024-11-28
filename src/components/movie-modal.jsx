@@ -157,18 +157,42 @@ export function MovieModal({ movie, isOpen, onClose }) {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-5xl p-0 overflow-hidden">
+      <DialogContent className="max-w-5xl p-0 overflow-hidden bg-black">
         {showVideo ? (
           loadingVideo ? (
-            <div className="flex items-center justify-center min-h-[80vh] bg-black">
-              <div className="text-white">Loading video...</div>
-            </div>
+            <>
+              <div className="flex items-center justify-center min-h-[80vh] bg-black">
+                <div className="text-white">Loading video...</div>
+              </div>
+              <DialogHeader className="p-4">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-4 top-4 text-white hover:text-white/80"
+                  onClick={handleClose}
+                >
+                  <X className="w-6 h-6" />
+                </Button>
+              </DialogHeader>
+            </>
           ) : (
-            <VideoPlayer
-              src={selectedVideoLink}
-              movieName={movie.title}
-              onBack={handleBackToDetails}
-            />
+            <>
+              <DialogHeader className="p-4">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-4 top-4 text-white hover:text-white/80"
+                  onClick={handleClose}
+                >
+                  <X className="w-6 h-6" />
+                </Button>
+              </DialogHeader>
+              <VideoPlayer
+                src={selectedVideoLink}
+                movieName={movie.title}
+                onBack={handleBackToDetails}
+              />
+            </>
           )
         ) : (
           <div
