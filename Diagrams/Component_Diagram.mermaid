@@ -1,0 +1,29 @@
+graph TD
+    subgraph "Authentication Components"
+        LC[Login Component] --> AC[Auth Context]
+        SC[Signup Component] --> AC
+        AC --> PR[Private Route]
+        PR --> Protected[Protected Content]
+    end
+
+    subgraph "Movie Components"
+        HC[Home Component] --> MC[Movie Card]
+        MC --> MM[Movie Modal]
+        MM --> VP[Video Player]
+        CC[Collections Component] --> MC
+    end
+
+
+    subgraph "Data Flow"
+        API[Axios API] --> HC
+        API --> CC
+        FB[Firebase] --> AC
+        FB --> CC
+    end
+
+    User --> LC
+    User --> SC
+    User --> HC
+    User --> CC
+    Protected --> HC
+    Protected --> CC
