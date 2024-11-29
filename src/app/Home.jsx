@@ -39,19 +39,19 @@ export default function Home() {
         let upcomingRes = { data: { results: [] } };
 
         try {
-          trendingRes = await api.get(`/trending/movie/week?api_key=${API_KEY}`);
+          trendingRes = await api.get(`${BASE_URL}/trending/movie/week?api_key=${API_KEY}`);
         } catch (error) {
           console.error('Error fetching trending movies:', error);
         }
 
         try {
-          topRatedRes = await api.get(`/movie/top_rated?api_key=${API_KEY}`);
+          topRatedRes = await api.get(`${BASE_URL}/movie/top_rated?api_key=${API_KEY}`);
         } catch (error) {
           console.error('Error fetching top rated movies:', error);
         }
 
         try {
-          upcomingRes = await api.get(`/movie/upcoming?api_key=${API_KEY}`);
+          upcomingRes = await api.get(`${BASE_URL}/movie/upcoming?api_key=${API_KEY}`);
         } catch (error) {
           console.error('Error fetching upcoming movies:', error);
         }
