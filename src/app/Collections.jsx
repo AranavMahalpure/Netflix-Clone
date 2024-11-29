@@ -41,7 +41,7 @@ export default function Collections() {
       setError(null);
       try {
         const moviePromises = collectionMovieIds.map(id =>
-          api.get(`/movie/${id}?api_key=${API_KEY}`)
+          api.get(`${BASE_URL}/movie/${id}?api_key=${API_KEY}`)
         );
         const responses = await Promise.all(moviePromises);
         const movieData = responses.map(response => response.data);
